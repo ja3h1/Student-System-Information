@@ -19,7 +19,7 @@ This Java console application lets a school staff member add, list, search, upda
 | Class | Responsibility |
 |---|---|
 | `Person` | Abstract base for shared personal details. |
-| `Student` | Abstract student record with ID, year level, status, address, and course. |
+| `Student` | Abstract student record with ID, year level, address, and course. |
 | `RegularStudent` | Student subtype with admission date. |
 | `TransfereeStudent` | Student subtype with previous-school information. |
 | `Address` | Stores a student's address. |
@@ -35,11 +35,12 @@ This Java console application lets a school staff member add, list, search, upda
 Requires JDK 11 or newer. From the repository root:
 
 ```powershell
-javac -d out src\*.java
+New-Item -ItemType Directory -Force out
+javac -d out (Get-ChildItem .\src\*.java).FullName
 java -cp out Main
 ```
 
-The application creates the `data` folder and student data file when records are first saved. Keep that generated data file private if it contains real student information; use fictional sample records for demonstrations and repository examples.
+Year level is limited to 1–4. Student records contain course and department names; status and course/department codes are not collected. The application creates the `data` folder and student data file when records are first saved. Keep that generated data file private if it contains real student information; use fictional sample records for demonstrations and repository examples.
 
 ## Project documents
 

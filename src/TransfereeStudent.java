@@ -4,8 +4,8 @@ public class TransfereeStudent extends Student {
     private String previousSchool;
 
     public TransfereeStudent(String studentId, String name, String contactNumber, int yearLevel,
-                             String status, Address address, Course course, String previousSchool) {
-        super(studentId, name, contactNumber, yearLevel, status, address, course);
+                             Address address, Course course, String previousSchool) {
+        super(studentId, name, contactNumber, yearLevel, address, course);
         this.previousSchool = previousSchool;
     }
 
@@ -15,8 +15,8 @@ public class TransfereeStudent extends Student {
 
     @Override public String displayDetails() {
         return getStudentType() + " Student | " + getStudentId() + " | " + getDetails()
-                + " | Year: " + getYearLevel() + " | Status: " + getStatus()
-                + " | Course: " + getCourse().getCourseCode()
+                + " | Year: " + getYearLevel()
+                + " | Course: " + getCourse().getCourseName() + " (" + getCourse().getDepartment().getDepartmentName() + ")"
                 + " | Address: " + getAddress() + " | Previous school: " + previousSchool;
     }
 }

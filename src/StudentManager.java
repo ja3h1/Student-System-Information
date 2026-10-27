@@ -32,13 +32,12 @@ public class StudentManager {
     }
 
     public void updateStudent(String studentId, String name, String contact, int year,
-                              String status, Address address, Course course) throws IOException {
+                              Address address, Course course) throws IOException {
         Student student = searchStudent(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student ID was not found."));
         student.setName(name);
         student.setContactNumber(contact);
         student.setYearLevel(year);
-        student.setStatus(status);
         student.setAddress(address);
         student.setCourse(course);
         save();

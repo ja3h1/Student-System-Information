@@ -70,11 +70,11 @@ sequenceDiagram
 
 ## Class diagram
 
-See [`student_management_class_diagram.png`](student_management_class_diagram.png). The image is the original visual draft; the source classes are the implementation reference if names or signatures differ.
+See [`student_management_class_diagram.png`](student_management_class_diagram.png) for the updated class diagram.
 
 ## Design notes
 
 - The system uses a `List<Student>` collection, with concrete student subtypes stored polymorphically.
 - `StudentManager` owns record operations, `InputValidator` checks user input, and `FileHandler` handles persistence.
-- `Address`, `Course`, and `Department` are associated data classes.
+- `Address`, `Course`, and `Department` are associated data classes. Course and department are represented by names; code fields and student status are not part of the model. Year level is limited to 1–4.
 - The diagrams describe the design, not test results. Add test outcomes only after the group runs and records the tests.

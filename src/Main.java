@@ -44,16 +44,15 @@ public class Main {
         String id = VALIDATOR.requireText(prompt("Student ID: "), "Student ID");
         String name = VALIDATOR.requireText(prompt("Full name: "), "Name");
         String contact = VALIDATOR.requireText(prompt("Contact number: "), "Contact number");
-        int year = VALIDATOR.requireYearLevel(prompt("Year level (1-6): "));
-        String status = VALIDATOR.requireText(prompt("Status: "), "Status");
+        int year = VALIDATOR.requireYearLevel(prompt("Year level (1-4): "));
         Address address = readAddress();
         Course course = readCourse();
         Student student;
         if (type.equals("1")) {
-            student = new RegularStudent(id, name, contact, year, status, address, course,
+            student = new RegularStudent(id, name, contact, year, address, course,
                     VALIDATOR.requireText(prompt("Admission date: "), "Admission date"));
         } else if (type.equals("2")) {
-            student = new TransfereeStudent(id, name, contact, year, status, address, course,
+            student = new TransfereeStudent(id, name, contact, year, address, course,
                     VALIDATOR.requireText(prompt("Previous school: "), "Previous school"));
         } else {
             throw new IllegalArgumentException("Choose 1 for Regular or 2 for Transferee.");
@@ -79,8 +78,8 @@ public class Main {
         manager.updateStudent(id,
                 VALIDATOR.requireText(prompt("New full name: "), "Name"),
                 VALIDATOR.requireText(prompt("New contact number: "), "Contact number"),
-                VALIDATOR.requireYearLevel(prompt("New year level (1-6): ")),
-                VALIDATOR.requireText(prompt("New status: "), "Status"), readAddress(), readCourse());
+                VALIDATOR.requireYearLevel(prompt("New year level (1-4): ")),
+                readAddress(), readCourse());
         System.out.println(existing.getStudentId() + " updated.");
     }
 
@@ -96,11 +95,9 @@ public class Main {
     }
 
     private static Course readCourse() {
-        String departmentCode = VALIDATOR.requireText(prompt("Department code: "), "Department code");
         String departmentName = VALIDATOR.requireText(prompt("Department name: "), "Department name");
-        Department department = new Department(departmentCode, departmentName);
-        return new Course(VALIDATOR.requireText(prompt("Course code: "), "Course code"),
-                VALIDATOR.requireText(prompt("Course name: "), "Course name"), department);
+        Department department = new Department(departmentName);
+        return new Course(VALIDATOR.requireText(prompt("Course name: "), "Course name"), department);
     }
 
     private static String prompt(String message) {

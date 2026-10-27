@@ -15,13 +15,13 @@ A school staff member or administrator who maintains student information.
 3. Search for a student by student ID.
 4. Update a student record.
 5. Delete a student record.
-6. Validate required input and year level, with understandable feedback.
+6. Validate required input and year level (1–4), with understandable feedback.
 7. Save and reload records using Java object serialization.
 
 ## Class design
 
 - `Person` (abstract): shared personal details and behavior.
-- `Student` (abstract): shared student details; extends `Person`.
+- `Student` (abstract): shared student details (ID, year level, address, and course); extends `Person`.
 - `RegularStudent`: regular admission details; extends `Student`.
 - `TransfereeStudent`: previous-school details; extends `Student`.
 - `Address`: address information associated with a student.
@@ -31,6 +31,10 @@ A school staff member or administrator who maintains student information.
 - `FileHandler`: saves and loads records.
 - `InputValidator`: validates user input.
 - `Main`: console menu and application entry point.
+
+## Record fields
+
+Student records do not include a status field. Course and department are represented by their names; course codes and department codes are not collected. Year level accepts values 1 through 4.
 
 ## Required OOP demonstration
 

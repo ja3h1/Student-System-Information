@@ -10,7 +10,7 @@ public class InputValidator {
     public int requireYearLevel(String value) {
         try {
             int year = Integer.parseInt(value.trim());
-            if (year < 1 || year > 6) throw new IllegalArgumentException("Year level must be from 1 to 6.");
+            if (year < 1 || year > 4) throw new IllegalArgumentException("Year level must be from 1 to 4.");
             return year;
         } catch (NumberFormatException ex) {
             throw new IllegalArgumentException("Year level must be a whole number.");
