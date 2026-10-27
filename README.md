@@ -10,12 +10,12 @@ This Java console application lets school staff add, list, search, update, and d
 
 | Class | Responsibility |
 |---|---|
-| `Student` *(abstract)* | Shared student fields: ID, name, contact number, year level, course name, and department name. |
+| `Student` *(abstract)* | Shared student fields: integer student ID, name, integer contact number, year level, course name, and department name. |
 | `RegularStudent` | Regular student subtype with an admission date. |
 | `TransfereeStudent` | Transferee subtype with a previous school. |
 | `StudentManager` | Console menu, student collection, CRUD operations, validation, and file saving/loading. |
 
-There is no address field or separate address class. Course and department are stored as names, without codes. Student status is not collected. Year level accepts 1–4.
+There is no address field or separate address class. Course and department are stored as names, without codes. Student status is not collected. Year level accepts 1–4. Student ID and contact number are entered as positive integers.
 
 CRUD, input validation, and file saving/loading are system functions. The project demonstrates only the five required OOP concepts below.
 
@@ -35,7 +35,7 @@ Requires JDK 11 or newer with `javac` available on PATH. From the project folder
 run.bat
 ```
 
-You can also double-click `run.bat` in File Explorer. The script compiles the four Java source files and opens the menu. It saves readable, pipe-separated text records in `data/students.txt`.
+You can also double-click `run.bat` in File Explorer. The script compiles the four Java source files and opens the menu. It saves readable, pipe-separated text records in `data/students.txt`. Student ID and contact number are integers, so leading zeros and 11-digit contact numbers cannot be represented.
 
 To compile and run manually from PowerShell:
 

@@ -8,9 +8,9 @@ The design is limited to four classes and matches the Java implementation.
 classDiagram
     class Student {
       <<abstract>>
-      -String studentId
+      -int studentId
       -String name
-      -String contactNumber
+      -int contactNumber
       -int yearLevel
       -String courseName
       -String departmentName
@@ -30,9 +30,9 @@ classDiagram
     class StudentManager {
       -List~Student~ students
       +addStudent(Student) void
-      +searchStudent(String) Optional~Student~
-      +updateStudent(String, ...) void
-      +deleteStudent(String) void
+      +searchStudent(int) Optional~Student~
+      +updateStudent(int, ...) void
+      +deleteStudent(int) void
       +listStudents() List~Student~
       +main(String[]) void
     }
@@ -106,4 +106,4 @@ sequenceDiagram
 
 ## Scope notes
 
-There is no address field/class, status field, course code, department code, or separate course and department classes. Course and department names are stored directly on `Student`. `StudentManager` includes the menu, validation, CRUD operations, and text-file persistence so the project remains at four Java classes.
+Student ID and contact number use `int`, so leading zeros and 11-digit contact values cannot be represented. There is no address field/class, status field, course code, department code, or separate course and department classes. Course and department names are stored directly on `Student`. `StudentManager` includes the menu, validation, CRUD operations, and text-file persistence so the project remains at four Java classes.

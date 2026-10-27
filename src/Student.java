@@ -4,14 +4,14 @@ import java.io.Serializable;
 public abstract class Student implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String studentId;
+    private final int studentId;
     private String name;
-    private String contactNumber;
+    private int contactNumber;
     private int yearLevel;
     private String courseName;
     private String departmentName;
 
-    protected Student(String studentId, String name, String contactNumber, int yearLevel,
+    protected Student(int studentId, String name, int contactNumber, int yearLevel,
                       String courseName, String departmentName) {
         this.studentId = studentId;
         this.name = name;
@@ -21,11 +21,11 @@ public abstract class Student implements Serializable {
         this.departmentName = departmentName;
     }
 
-    public String getStudentId() { return studentId; }
+    public int getStudentId() { return studentId; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-    public String getContactNumber() { return contactNumber; }
-    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
+    public int getContactNumber() { return contactNumber; }
+    public void setContactNumber(int contactNumber) { this.contactNumber = contactNumber; }
     public int getYearLevel() { return yearLevel; }
     public void setYearLevel(int yearLevel) { this.yearLevel = yearLevel; }
     public String getCourseName() { return courseName; }

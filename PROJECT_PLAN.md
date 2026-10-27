@@ -20,12 +20,12 @@ A school staff member or administrator who maintains student information.
 
 ## Four-class design
 
-- `Student` (abstract): shared student ID, name, contact number, year level, course name, and department name.
+- `Student` (abstract): shared integer student ID, name, integer contact number, year level, course name, and department name.
 - `RegularStudent`: adds admission date and overrides `displayDetails()`.
 - `TransfereeStudent`: adds previous school and overrides `displayDetails()`.
 - `StudentManager`: console menu, collection, CRUD operations, validation, and text-file persistence.
 
-The design has no address field or address class. Course and department are names rather than separate classes or coded values. Student status is omitted.
+The design uses integer types for student ID and contact number; leading zeros and 11-digit contact values cannot be represented. It has no address field or address class. Course and department are names rather than separate classes or coded values. Student status is omitted.
 
 ## Required OOP demonstration
 

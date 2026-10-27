@@ -28,8 +28,8 @@ public class StudentManager {
 
     public List<Student> listStudents() { return new ArrayList<>(students); }
 
-    public Optional<Student> searchStudent(String studentId) {
-        return students.stream().filter(s -> s.getStudentId().equalsIgnoreCase(studentId)).findFirst();
+    public Optional<Student> searchStudent(int studentId) {
+        return students.stream().filter(s -> s.getStudentId() == studentId).findFirst();
     }
 
     public void addStudent(Student student) throws IOException {
@@ -40,7 +40,7 @@ public class StudentManager {
         saveStudents();
     }
 
-    public void updateStudent(String studentId, String name, String contactNumber, int yearLevel,
+    public void updateStudent(int studentId, String name, int contactNumber, int yearLevel,
                               String courseName, String departmentName) throws IOException {
         Student student = searchStudent(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student ID was not found."));
@@ -52,7 +52,7 @@ public class StudentManager {
         saveStudents();
     }
 
-    public void deleteStudent(String studentId) throws IOException {
+    public void deleteStudent(int studentId) throws IOException {
         Student student = searchStudent(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student ID was not found."));
         students.remove(student);
@@ -81,9 +81,9 @@ public class StudentManager {
 
     private void addStudentFromInput() throws IOException {
         String type = prompt("Student type (1 Regular, 2 Transferee): ").trim();
-        String id = required("Student ID");
+        int id = readPositiveInteger("Student ID");
         String name = required("Full name");
-        String contact = required("Contact number");
+        int contact = readPositiveInteger("Contact number");
         int year = readYearLevel();
         String course = required("Course name");
         String department = required("Department name");
@@ -101,15 +101,16 @@ public class StudentManager {
 
     private void showStudents() {
         if (students.isEmpty()) { System.out.println("No student records yet."); return; }
-        String format = "%-14s | %-24s | %-12s | %-6s | %-24s | %-24s%n";
-        System.out.printf(format, "STUDENT ID", "NAME", "TYPE", "YEAR", "COURSE", "DEPARTMENT");
-        System.out.println("----------------+--------------------------+--------------+--------+--------------------------+--------------------------");
+        String format = "%-14s | %-24s | %-12s | %-6s | %-14s | %-24s | %-24s%n";
+        System.out.printf(format, "STUDENT ID", "NAME", "TYPE", "YEAR", "CONTACT", "COURSE", "DEPARTMENT");
+        System.out.println("----------------+--------------------------+--------------+--------+----------------+--------------------------+--------------------------");
         for (Student student : students) {
             System.out.printf(format,
-                    column(student.getStudentId(), 14),
+                    column(String.valueOf(student.getStudentId()), 14),
                     column(student.getName(), 24),
                     column(student.getStudentType(), 12),
                     student.getYearLevel(),
+                    student.getContactNumber(),
                     column(student.getCourseName(), 24),
                     column(student.getDepartmentName(), 24));
         }
@@ -122,20 +123,20 @@ public class StudentManager {
     }
 
     private void showStudent() {
-        String id = required("Student ID");
+        int id = readPositiveInteger("Student ID");
         System.out.println(searchStudent(id).map(Student::displayDetails).orElse("Student ID was not found."));
     }
 
     private void updateStudentFromInput() throws IOException {
-        String id = required("Student ID to update");
+        int id = readPositiveInteger("Student ID to update");
         if (searchStudent(id).isEmpty()) throw new IllegalArgumentException("Student ID was not found.");
-        updateStudent(id, required("New full name"), required("New contact number"), readYearLevel(),
+        updateStudent(id, required("New full name"), readPositiveInteger("New contact number"), readYearLevel(),
                 required("New course name"), required("New department name"));
         System.out.println("Student updated.");
     }
 
     private void deleteStudentFromInput() throws IOException {
-        deleteStudent(required("Student ID to delete"));
+        deleteStudent(readPositiveInteger("Student ID to delete"));
         System.out.println("Student deleted.");
     }
 
@@ -143,6 +144,17 @@ public class StudentManager {
         String value = prompt(fieldName + ": ").trim();
         if (value.isEmpty()) throw new IllegalArgumentException(fieldName + " cannot be empty.");
         return value;
+    }
+
+    private int readPositiveInteger(String fieldName) {
+        String value = required(fieldName);
+        try {
+            int number = Integer.parseInt(value);
+            if (number <= 0) throw new IllegalArgumentException(fieldName + " must be a positive integer.");
+            return number;
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException(fieldName + " must be a positive whole number within the int range.");
+        }
     }
 
     private int readYearLevel() {
@@ -171,20 +183,22 @@ public class StudentManager {
             List<String> fields = splitRecord(line);
             if (fields.size() != 8) throw new IOException("Invalid record on line " + lineNumber + ".");
             try {
+                int studentId = Integer.parseInt(fields.get(1));
+                int contactNumber = Integer.parseInt(fields.get(3));
                 int year = Integer.parseInt(fields.get(4));
                 if (year < 1 || year > 4) throw new IOException("Invalid year level on line " + lineNumber + ".");
                 String type = fields.get(0);
                 if (type.equals("Regular")) {
-                    loaded.add(new RegularStudent(fields.get(1), fields.get(2), fields.get(3), year,
+                    loaded.add(new RegularStudent(studentId, fields.get(2), contactNumber, year,
                             fields.get(5), fields.get(6), fields.get(7)));
                 } else if (type.equals("Transferee")) {
-                    loaded.add(new TransfereeStudent(fields.get(1), fields.get(2), fields.get(3), year,
+                    loaded.add(new TransfereeStudent(studentId, fields.get(2), contactNumber, year,
                             fields.get(5), fields.get(6), fields.get(7)));
                 } else {
                     throw new IOException("Unknown student type on line " + lineNumber + ".");
                 }
             } catch (NumberFormatException ex) {
-                throw new IOException("Invalid year level on line " + lineNumber + ".", ex);
+                throw new IOException("Invalid integer field on line " + lineNumber + ".", ex);
             }
         }
         return loaded;
@@ -197,8 +211,8 @@ public class StudentManager {
             String subtypeValue = student instanceof RegularStudent
                     ? ((RegularStudent) student).getAdmissionDate()
                     : ((TransfereeStudent) student).getPreviousSchool();
-            String[] fields = {student.getStudentType(), student.getStudentId(), student.getName(),
-                    student.getContactNumber(), String.valueOf(student.getYearLevel()),
+            String[] fields = {student.getStudentType(), String.valueOf(student.getStudentId()), student.getName(),
+                    String.valueOf(student.getContactNumber()), String.valueOf(student.getYearLevel()),
                     student.getCourseName(), student.getDepartmentName(), subtypeValue};
             List<String> encodedFields = new ArrayList<>();
             for (String field : fields) encodedFields.add(encodeField(field));
