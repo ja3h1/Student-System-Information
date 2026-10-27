@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student records</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E8ECF1;--surface:#fff;--ink:#14213D;--mute:#5B677D;--line:#D3DAE4;
+  --reg:#1F6F5C;--trf:#B97A06;--danger:#B3261E;--btn-bg:#14213D;--btn-fg:#fff;--sweep:#2F4A86;--focus:#2F5BEA;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1626;--surface:#18223A;--ink:#E8EDF7;--mute:#93A0B8;--line:#2A3652;--reg:#4DB89E;--trf:#E3B341;
+  --danger:#FF8A80;--btn-bg:#E8EDF7;--btn-fg:#0F1626;--sweep:#A9BDEB;--focus:#8FB0FF;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1626;--surface:#18223A;--ink:#E8EDF7;--mute:#93A0B8;--line:#2A3652;--reg:#4DB89E;--trf:#E3B341;
+  --danger:#FF8A80;--btn-bg:#E8EDF7;--btn-fg:#0F1626;--sweep:#A9BDEB;--focus:#8FB0FF;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--body)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:960px;margin:0 auto;padding:40px 20px 96px}
+.top{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:28px}
+h1{font:700 clamp(2.2rem,6vw,3.6rem)/1 var(--display);letter-spacing:-.03em;margin:0}
+.count{color:var(--mute);margin:8px 0 0}
+.tools{display:flex;gap:12px;flex:1 1 320px;justify-content:flex-end}
+.search{flex:1 1 180px;max-width:320px;position:relative}
+.search input{width:100%;height:48px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:0 14px;transition:border-color .2s,box-shadow .2s}
+.search input:focus{outline:none;border-color:var(--focus);box-shadow:0 0 0 4px color-mix(in srgb,var(--focus) 22%,transparent)}
+
+/* button: fill sweeps in on hover, presses on click, morphs to saving/saved */
+.btn{position:relative;overflow:hidden;isolation:isolate;height:48px;padding:0 22px;border:0;border-radius:12px;background:var(--btn-bg);color:var(--btn-fg);font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;white-space:nowrap;
+  transition:transform .18s cubic-bezier(.3,1.6,.5,1),box-shadow .25s,min-width .3s}
+.btn::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--sweep);transform:translateX(-101%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.btn:hover::before,.btn:focus-visible::before{transform:none}
+.btn:hover{box-shadow:0 8px 20px -8px var(--btn-bg)}
+.btn:active{transform:scale(.96)}
+.btn .plus{width:14px;height:14px;position:relative;transition:transform .3s}
+.btn .plus::before,.btn .plus::after{content:"";position:absolute;background:currentColor;border-radius:2px}
+.btn .plus::before{left:0;right:0;top:6px;height:2px}.btn .plus::after{top:0;bottom:0;left:6px;width:2px}
+.btn:hover .plus{transform:rotate(90deg)}
+.btn.busy{pointer-events:none}
+.btn.busy .lbl::after{content:"";display:inline-block;width:14px;height:14px;margin-left:10px;vertical-align:-2px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
+.btn.done{pointer-events:none}.btn.done::before{transform:none;background:var(--reg)}
+.btn.done{color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.ghost::before{background:var(--line)}
+.btn.ghost:hover{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn.danger{color:var(--danger)}
+.btn.danger.armed{background:var(--danger);color:#fff;box-shadow:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* list */
+.list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.row{width:100%;text-align:left;cursor:pointer;display:grid;grid-template-columns:1.3fr 1.5fr .6fr .8fr;gap:8px 20px;align-items:center;
+  padding:16px 20px 16px 26px;border:0;border-radius:14px;background:var(--surface);position:relative;
+  box-shadow:0 0 0 1px var(--line);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.row::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:6px;border-radius:0 6px 6px 0;background:var(--tab);transition:top .25s,bottom .25s,width .25s}
+.row:hover{transform:translateX(4px);box-shadow:0 0 0 1px var(--tab)}
+.row:hover::before{top:0;bottom:0;width:10px;border-radius:14px 0 0 14px}
+.row:active{transform:translateX(4px) scale(.99)}
+.row b{display:block;font:600 1.1rem/1.2 var(--display)}
+.row small{display:block;color:var(--mute);font-size:.86rem}
+.kind{font-weight:600;color:var(--tab)}
+.empty{padding:48px 24px;text-align:center;border:1.5px dashed var(--line);border-radius:14px;color:var(--mute)}
+.empty p{margin:0 0 16px}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,16,30,.5);opacity:0;pointer-events:none;transition:opacity .3s;z-index:20}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--surface);z-index:21;overflow-y:auto;
+  padding:calc(28px + env(safe-area-inset-top,0px)) 28px calc(28px + env(safe-area-inset-bottom,0px));
+  transform:translateX(104%);visibility:hidden;transition:transform .4s cubic-bezier(.2,.8,.2,1),visibility 0s .4s}
+.sheet.on{transform:none;visibility:visible;transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.sheet h2{font:700 1.9rem/1.1 var(--display);letter-spacing:-.02em;margin:0 0 6px;padding-right:44px}
+.x{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:16px;width:44px;height:44px;border:0;border-radius:50%;background:transparent;cursor:pointer;font-size:1.5rem;line-height:1;transition:background .2s,transform .3s}
+.x:hover{background:var(--bg);transform:rotate(90deg)}
+.pill{display:inline-block;padding:2px 12px;border-radius:99px;font-weight:600;font-size:.9rem;color:var(--tab);box-shadow:inset 0 0 0 1.5px var(--tab)}
+dl{margin:24px 0;display:grid;grid-template-columns:auto 1fr;gap:12px 20px}
+dt{color:var(--mute)}dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+.acts{display:flex;gap:12px;flex-wrap:wrap}
+
+/* form */
+.f{display:grid;gap:18px;margin-top:22px}
+label,.lab{display:grid;gap:6px;font-weight:500;font-size:.95rem}
+.f input[type=text],.f input[type=date]{height:48px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);padding:0 12px;transition:border-color .2s,box-shadow .2s}
+.f input:focus{outline:none;border-color:var(--focus);box-shadow:0 0 0 4px color-mix(in srgb,var(--focus) 22%,transparent)}
+.f input:disabled{opacity:.55}
+.f .bad input{border-color:var(--danger)}
+.err{color:var(--danger);font-size:.86rem;min-height:0;font-weight:400}
+.seg{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--bg);border-radius:12px;padding:4px;box-shadow:inset 0 0 0 1.5px var(--line)}
+.seg i{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/var(--n));border-radius:9px;background:var(--surface);box-shadow:0 0 0 1.5px var(--tab,var(--ink));
+  transform:translateX(calc(var(--i)*100%));transition:transform .35s cubic-bezier(.3,1.3,.5,1),box-shadow .3s}
+.seg button{position:relative;height:42px;border:0;background:none;cursor:pointer;font-weight:600;color:var(--mute);transition:color .2s}
+.seg button[aria-pressed=true]{color:var(--ink)}
+.seg button:disabled{cursor:not-allowed;opacity:.6}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,24px);opacity:0;background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:12px;font-weight:500;z-index:30;pointer-events:none;transition:.35s cubic-bezier(.2,.8,.2,1)}
+.toast.on{transform:translate(-50%,0);opacity:1}
+
+@media (max-width:720px){
+  .wrap{padding-top:28px}
+  .tools{justify-content:stretch}.search{max-width:none}
+  .row{grid-template-columns:1fr auto;padding:14px 16px 14px 22px}
+  .row .what{grid-column:1/-1;order:3}.row .yr{order:2;color:var(--mute)}.row .kind{display:none}
+  .row .who small::after{content:" · " attr(data-kind)}
+  .sheet{top:auto;left:0;width:100%;max-height:92dvh;border-radius:20px 20px 0 0;transform:translateY(104%)}
+  .sheet.on{transform:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>Student records</h1><p class="count" id="count"></p></div>
+    <div class="tools">
+      <div class="search"><input id="q" type="search" placeholder="Find by ID or name" aria-label="Find by ID or name" autocomplete="off"></div>
+      <button class="btn" id="add"><span class="plus"></span><span class="lbl">Add student</span></button>
+    </div>
+  </div>
+  <ul class="list" id="list"></ul>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Student"></aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const KEY="sims.students.v2";
+const SEED=[
+ {type:"Regular",id:"251-00101",name:"Maria Santos",contact:"09171234567",year:2,course:"BS Information Technology",dept:"College of Computing",extra:"2025-06-10"},
+ {type:"Regular",id:"251-00114",name:"Jon Reyes",contact:"09281234567",year:1,course:"BS Information Technology",dept:"College of Computing",extra:"2025-06-09"},
+ {type:"Transferee",id:"242-00372",name:"Ana Dela Cruz",contact:"09391234567",year:3,course:"BS Computer Science",dept:"College of Computing",extra:"Northgate College"},
+ {type:"Regular",id:"223-00205",name:"Paolo Villanueva",contact:"09451234567",year:4,course:"BS Civil Engineering",dept:"College of Engineering",extra:"2022-06-13"}
+];
+let students=[],remote=false; // remote = served by the Java app; otherwise demo mode in localStorage
+async function api(method,url,d){
+  if(!remote){
+    const id=url.split("/")[3];
+    if(method==="POST")return{type:d.type,id:d.id,name:d.name,contact:d.contact,year:+d.year,course:d.course,dept:d.dept,extra:d.extra};
+    if(method==="PUT")return{...students.find(s=>s.id===id),name:d.name,contact:d.contact,year:+d.year,course:d.course,dept:d.dept};
+    return{ok:true};
+  }
+  const r=await fetch(url,{method,headers:{"Content-Type":"application/x-www-form-urlencoded"},body:d?new URLSearchParams(d):undefined});
+  const j=await r.json();if(!r.ok)throw new Error(j.error||"Request failed");return j;
+}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const tabVar=t=>t==="Regular"?"var(--reg)":"var(--trf)";
+function persist(){if(!remote)try{localStorage.setItem(KEY,JSON.stringify(students))}catch(e){}}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("on"),2200)}
+
+function render(){
+  const q=$("q").value.trim().toLowerCase();
+  const hits=students.filter(s=>!q||String(s.id).startsWith(q)||s.name.toLowerCase().includes(q));
+  $("count").textContent=students.length?`${students.length} on file${q?`, ${hits.length} shown`:""}`:"Nothing on file yet";
+  if(!remote)$("count").textContent+=" (demo: saved in this browser only)";
+  $("list").innerHTML=hits.length?hits.map(s=>`<li><button class="row" data-id="${s.id}" style="--tab:${tabVar(s.type)}">
+    <span class="who"><b>${esc(s.name)}</b><small data-kind="${s.type}">ID ${s.id}</small></span>
+    <span class="what">${esc(s.course)}<small>${esc(s.dept)}</small></span>
+    <span class="yr">Year ${s.year}</span><span class="kind">${s.type}</span></button></li>`).join(""):
+    `<li class="empty"><p>${students.length?"No student matches that ID or name.":"No students yet. Add the first record."}</p>${students.length?"":'<button class="btn" data-act="new"><span class="lbl">Add student</span></button>'}</li>`;
+}
+
+let lastFocus=null;
+function open(html){lastFocus=document.activeElement;const s=$("sheet");s.innerHTML=`<button class="x" aria-label="Close" data-act="close">×</button>`+html;s.classList.add("on");$("scrim").classList.add("on");setTimeout(()=>{const f=s.querySelector("input:not(:disabled),.btn");f&&f.focus({preventScroll:true})},60)}
+function close(){$("sheet").classList.remove("on");$("scrim").classList.remove("on");lastFocus&&lastFocus.focus&&lastFocus.focus()}
+
+function detail(id){
+  const s=students.find(x=>x.id===id);if(!s)return;
+  open(`<span class="pill" style="--tab:${tabVar(s.type)}">${s.type}</span>
+  <h2 style="margin-top:12px">${esc(s.name)}</h2>
+  <dl><dt>Student ID</dt><dd>${s.id}</dd><dt>Contact</dt><dd>${esc(s.contact)}</dd><dt>Year level</dt><dd>${s.year}</dd>
+  <dt>Course</dt><dd>${esc(s.course)}</dd><dt>Department</dt><dd>${esc(s.dept)}</dd>
+  <dt>${s.type==="Regular"?"Admitted":"Previous school"}</dt><dd>${esc(s.extra)}</dd></dl>
+  <div class="acts"><button class="btn" data-act="edit" data-id="${id}"><span class="lbl">Edit record</span></button>
+  <button class="btn ghost danger" data-act="del" data-id="${id}"><span class="lbl">Delete</span></button></div>`);
+}
+
+function form(id){
+  const s=id?students.find(x=>x.id===id):null;const type=s?s.type:"Regular";
+  open(`<h2>${s?"Edit student":"Add student"}</h2>
+  <form class="f" id="form" novalidate data-edit="${s?s.id:""}">
+    <div class="lab">Student type
+      <div class="seg" id="seg" style="--n:2;--i:${type==="Regular"?0:1};--tab:${tabVar(type)}" data-type="${type}">
+        <i></i><button type="button" aria-pressed="${type==="Regular"}" data-t="Regular" ${s?"disabled":""}>Regular</button>
+        <button type="button" aria-pressed="${type==="Transferee"}" data-t="Transferee" ${s?"disabled":""}>Transferee</button></div></div>
+    <label>Student ID<input type="text" inputmode="numeric" name="id" value="${s?s.id:""}" placeholder="000-00000" maxlength="9" ${s?"disabled":""}><span class="err"></span></label>
+    <label>Full name<input type="text" name="name" value="${s?esc(s.name):""}" autocomplete="off"><span class="err"></span></label>
+    <label>Contact number<input type="text" inputmode="numeric" name="contact" value="${s?esc(s.contact):""}" placeholder="09000000000" maxlength="11"><span class="err"></span></label>
+    <div class="lab">Year level
+      <div class="seg" id="yseg" style="--n:4;--i:${s?s.year-1:0}" data-year="${s?s.year:1}"><i></i>
+      ${[1,2,3,4].map(y=>`<button type="button" data-y="${y}" aria-pressed="${(s?s.year:1)===y}">${y}</button>`).join("")}</div></div>
+    <label>Course name<input type="text" name="course" value="${s?esc(s.course):""}"><span class="err"></span></label>
+    <label>Department name<input type="text" name="dept" value="${s?esc(s.dept):""}"><span class="err"></span></label>
+    <label id="xl"></label>
+    <button class="btn" type="submit" id="save"><span class="lbl">${s?"Save changes":"Save student"}</span></button><span class="err" id="ferr" role="alert"></span>
+  </form>`);
+  extra(type,s?s.extra:"",!!s);
+}
+function extra(type,val,lock){
+  const reg=type==="Regular";
+  $("xl").innerHTML=`${reg?"Admission date":"Previous school"}<input type="${reg?"date":"text"}" name="extra" value="${esc(val)}" ${lock?"disabled":""}><span class="err"></span>`;
+}
+
+async function submit(e){
+  e.preventDefault();const f=e.target,v=n=>f.elements[n].value.trim();
+  const editId=f.dataset.edit||null,type=$("seg").dataset.type,year=Number($("yseg").dataset.year);
+  const id=editId||v("id"),errs={};
+  if(!editId&&!/^\d{3}-\d{5}$/.test(v("id")))errs.id="Student ID must look like 000-00000.";
+  else if(!editId&&students.some(s=>s.id===id))errs.id="A student with that ID already exists.";
+  if(!v("name"))errs.name="Full name can’t be empty.";
+  if(!/^09\d{9}$/.test(v("contact")))errs.contact="Contact number must be 11 digits starting with 09, like 09000000000.";
+  if(!v("course"))errs.course="Course name can’t be empty.";
+  if(!v("dept"))errs.dept="Department name can’t be empty.";
+  if(!v("extra"))errs.extra=(type==="Regular"?"Admission date":"Previous school")+" can’t be empty.";
+  f.querySelectorAll("label").forEach(l=>{const i=l.querySelector("input"),m=i&&errs[i.name];l.classList.toggle("bad",!!m);const er=l.querySelector(".err");if(er)er.textContent=m||""});
+  const first=Object.keys(errs)[0];if(first){f.elements[first].focus();return}
+  const body={name:v("name"),contact:v("contact"),year,course:v("course"),dept:v("dept")};
+  const b=$("save"),lbl=b.querySelector(".lbl"),old=lbl.textContent;
+  b.classList.add("busy");lbl.textContent="Saving";$("ferr").textContent="";
+  try{
+    const[rec]=await Promise.all([api(editId?"PUT":"POST",editId?"/api/students/"+editId:"/api/students",editId?body:{...body,type,id,extra:v("extra")}),new Promise(r=>setTimeout(r,450))]);
+    students=editId?students.map(s=>s.id===editId?rec:s):[...students,rec];
+    persist();render();b.classList.replace("busy","done");lbl.textContent="Saved";
+    setTimeout(()=>{close();toast(editId?"Student updated":"Student saved")},650);
+  }catch(err){b.classList.remove("busy");lbl.textContent=old;$("ferr").textContent=err.message==="Failed to fetch"?"Can’t reach the Java server.":err.message}
+}
+
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button,.scrim");if(!t)return;
+  if(t.id==="scrim"||t.dataset.act==="close")return close();
+  if(t.id==="add"||t.dataset.act==="new")return form();
+  if(t.classList.contains("row"))return detail(t.dataset.id);
+  if(t.dataset.act==="edit")return form(t.dataset.id);
+  if(t.dataset.act==="del"){
+    if(!t.classList.contains("armed")){t.classList.add("armed");t.querySelector(".lbl").textContent="Confirm delete";setTimeout(()=>{t.classList.remove("armed");t.querySelector(".lbl").textContent="Delete"},3000);return}
+    api("DELETE","/api/students/"+t.dataset.id).then(()=>{students=students.filter(s=>s.id!==t.dataset.id);persist();render();close();toast("Student deleted")}).catch(err=>toast(err.message));return;
+  }
+  if(t.dataset.t){const seg=$("seg");seg.dataset.type=t.dataset.t;seg.style.setProperty("--i",t.dataset.t==="Regular"?0:1);seg.style.setProperty("--tab",tabVar(t.dataset.t));
+    seg.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===t));extra(t.dataset.t,"")}
+  if(t.dataset.y){const y=$("yseg");y.dataset.year=t.dataset.y;y.style.setProperty("--i",t.dataset.y-1);y.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===t))}
+});
+document.addEventListener("submit",e=>{if(e.target.matches("#form"))submit(e)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("sheet").classList.contains("on"))close()});
+document.addEventListener("input",e=>{ // auto-format as the person types
+  if(!e.target.closest||!e.target.closest("#form"))return;
+  const n=e.target.name,d=e.target.value.replace(/\D/g,"");
+  if(n==="id"){const x=d.slice(0,8);e.target.value=x.length>3?x.slice(0,3)+"-"+x.slice(3):x}
+  if(n==="contact")e.target.value=d.slice(0,11);
+});
+$("q").addEventListener("input",render);
+fetch("/api/students").then(r=>r.ok&&(r.headers.get("content-type")||"").includes("json")?r.json():Promise.reject()).then(d=>{remote=true;students=d}).catch(()=>{try{students=JSON.parse(localStorage.getItem(KEY))||SEED}catch(e){students=SEED}}).finally(render);
+</script>
+</body>
+</html>

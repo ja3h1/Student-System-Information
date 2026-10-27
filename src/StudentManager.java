@@ -1,9 +1,16 @@
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -11,6 +18,7 @@ import java.util.Scanner;
 public class StudentManager {
     private static final Scanner INPUT = new Scanner(System.in);
     private static final Path DATA_FILE = Path.of("data", "students.txt");
+    private static final Path WEB_PAGE = Path.of("docs", "index.html");
 
     private final List<Student> students;
 
@@ -20,16 +28,18 @@ public class StudentManager {
 
     public static void main(String[] args) {
         try {
-            new StudentManager().runMenu();
+            StudentManager manager = new StudentManager();
+            if (args.length > 0 && args[0].equals("web")) manager.startWeb(8080);
+            else manager.runMenu();
         } catch (IOException ex) {
-            System.out.println("Could not open student records: " + ex.getMessage());
+            System.out.println("Could not start: " + ex.getMessage());
         }
     }
 
     public List<Student> listStudents() { return new ArrayList<>(students); }
 
-    public Optional<Student> searchStudent(int studentId) {
-        return students.stream().filter(s -> s.getStudentId() == studentId).findFirst();
+    public Optional<Student> searchStudent(String studentId) {
+        return students.stream().filter(s -> s.getStudentId().equals(studentId)).findFirst();
     }
 
     public void addStudent(Student student) throws IOException {
@@ -40,7 +50,7 @@ public class StudentManager {
         saveStudents();
     }
 
-    public void updateStudent(int studentId, String name, int contactNumber, int yearLevel,
+    public void updateStudent(String studentId, String name, String contactNumber, int yearLevel,
                               String courseName, String departmentName) throws IOException {
         Student student = searchStudent(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student ID was not found."));
@@ -52,7 +62,7 @@ public class StudentManager {
         saveStudents();
     }
 
-    public void deleteStudent(int studentId) throws IOException {
+    public void deleteStudent(String studentId) throws IOException {
         Student student = searchStudent(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student ID was not found."));
         students.remove(student);
@@ -81,9 +91,9 @@ public class StudentManager {
 
     private void addStudentFromInput() throws IOException {
         String type = prompt("Student type (1 Regular, 2 Transferee): ").trim();
-        int id = readPositiveInteger("Student ID");
+        String id = readStudentId("Student ID");
         String name = required("Full name");
-        int contact = readPositiveInteger("Contact number");
+        String contact = readContact("Contact number");
         int year = readYearLevel();
         String course = required("Course name");
         String department = required("Department name");
@@ -106,7 +116,7 @@ public class StudentManager {
         System.out.println("----------------+--------------------------+--------------+--------+----------------+--------------------------+--------------------------");
         for (Student student : students) {
             System.out.printf(format,
-                    column(String.valueOf(student.getStudentId()), 14),
+                    column(student.getStudentId(), 14),
                     column(student.getName(), 24),
                     column(student.getStudentType(), 12),
                     student.getYearLevel(),
@@ -123,20 +133,20 @@ public class StudentManager {
     }
 
     private void showStudent() {
-        int id = readPositiveInteger("Student ID");
+        String id = readStudentId("Student ID");
         System.out.println(searchStudent(id).map(Student::displayDetails).orElse("Student ID was not found."));
     }
 
     private void updateStudentFromInput() throws IOException {
-        int id = readPositiveInteger("Student ID to update");
+        String id = readStudentId("Student ID to update");
         if (searchStudent(id).isEmpty()) throw new IllegalArgumentException("Student ID was not found.");
-        updateStudent(id, required("New full name"), readPositiveInteger("New contact number"), readYearLevel(),
+        updateStudent(id, required("New full name"), readContact("New contact number"), readYearLevel(),
                 required("New course name"), required("New department name"));
         System.out.println("Student updated.");
     }
 
     private void deleteStudentFromInput() throws IOException {
-        deleteStudent(readPositiveInteger("Student ID to delete"));
+        deleteStudent(readStudentId("Student ID to delete"));
         System.out.println("Student deleted.");
     }
 
@@ -146,19 +156,23 @@ public class StudentManager {
         return value;
     }
 
-    private int readPositiveInteger(String fieldName) {
-        String value = required(fieldName);
-        try {
-            int number = Integer.parseInt(value);
-            if (number <= 0) throw new IllegalArgumentException(fieldName + " must be a positive integer.");
-            return number;
-        } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException(fieldName + " must be a positive whole number within the int range.");
-        }
+    private String readStudentId(String fieldName) { return toStudentId(required(fieldName)); }
+
+    private String readContact(String fieldName) { return toContact(required(fieldName)); }
+
+    private int readYearLevel() { return toYear(prompt("Year level (1-4): ").trim()); }
+
+    private static String toStudentId(String value) {
+        if (!value.matches("\\d{3}-\\d{5}")) throw new IllegalArgumentException("Student ID must look like 000-00000.");
+        return value;
     }
 
-    private int readYearLevel() {
-        String value = prompt("Year level (1-4): ").trim();
+    private static String toContact(String value) {
+        if (!value.matches("09\\d{9}")) throw new IllegalArgumentException("Contact number must be 11 digits starting with 09, like 09000000000.");
+        return value;
+    }
+
+    private static int toYear(String value) {
         try {
             int year = Integer.parseInt(value);
             if (year < 1 || year > 4) throw new IllegalArgumentException("Year level must be from 1 to 4.");
@@ -166,6 +180,112 @@ public class StudentManager {
         } catch (NumberFormatException ex) {
             throw new IllegalArgumentException("Year level must be a whole number from 1 to 4.");
         }
+    }
+
+    // ---- Web mode: java -cp out StudentManager web ----
+    private void startWeb(int port) throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress("localhost", port), 0);
+        server.createContext("/", this::handleWeb);
+        server.start();
+        System.out.println("Student records are at http://localhost:" + port + "  (press Ctrl+C to stop)");
+    }
+
+    private void handleWeb(HttpExchange x) throws IOException {
+        String path = x.getRequestURI().getPath(), method = x.getRequestMethod();
+        String origin = x.getRequestHeaders().getFirst("Origin");
+        String json = "application/json; charset=utf-8";
+        String type = json, body;
+        int status = 200;
+        try {
+            if (origin != null && !origin.equals("http://localhost:" + x.getLocalAddress().getPort())) {
+                status = 403; body = "{\"error\":\"Blocked.\"}";
+            } else if (path.equals("/") && method.equals("GET")) {
+                type = "text/html; charset=utf-8";
+                body = Files.readString(WEB_PAGE, StandardCharsets.UTF_8);
+            } else if (path.equals("/api/students") && method.equals("GET")) {
+                List<String> items = new ArrayList<>();
+                for (Student s : students) items.add(toJson(s));
+                body = "[" + String.join(",", items) + "]";
+            } else if (path.equals("/api/students") && method.equals("POST")) {
+                Map<String, String> f = form(x);
+                String id = toStudentId(field(f, "id", "Student ID"));
+                String name = field(f, "name", "Full name");
+                String contact = toContact(field(f, "contact", "Contact number"));
+                int year = toYear(f.getOrDefault("year", "").trim());
+                String course = field(f, "course", "Course name"), dept = field(f, "dept", "Department name");
+                Student student;
+                if ("Regular".equals(f.get("type"))) {
+                    student = new RegularStudent(id, name, contact, year, course, dept, field(f, "extra", "Admission date"));
+                } else if ("Transferee".equals(f.get("type"))) {
+                    student = new TransfereeStudent(id, name, contact, year, course, dept, field(f, "extra", "Previous school"));
+                } else {
+                    throw new IllegalArgumentException("Choose Regular or Transferee.");
+                }
+                addStudent(student);
+                status = 201;
+                body = toJson(student);
+            } else if (path.startsWith("/api/students/") && (method.equals("PUT") || method.equals("DELETE"))) {
+                String id = toStudentId(path.substring("/api/students/".length()));
+                if (method.equals("PUT")) {
+                    Map<String, String> f = form(x);
+                    updateStudent(id, field(f, "name", "Full name"),
+                            toContact(field(f, "contact", "Contact number")),
+                            toYear(f.getOrDefault("year", "").trim()),
+                            field(f, "course", "Course name"), field(f, "dept", "Department name"));
+                    body = toJson(searchStudent(id).get());
+                } else {
+                    deleteStudent(id);
+                    body = "{\"ok\":true}";
+                }
+            } else {
+                status = 404; body = "{\"error\":\"Not found.\"}";
+            }
+        } catch (IllegalArgumentException ex) {
+            status = 400; type = json; body = "{\"error\":" + q(ex.getMessage()) + "}";
+        } catch (IOException ex) {
+            status = 500; type = json; body = "{\"error\":" + q(ex.getMessage()) + "}";
+        }
+        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+        x.getResponseHeaders().set("Content-Type", type);
+        x.sendResponseHeaders(status, bytes.length);
+        try (OutputStream out = x.getResponseBody()) { out.write(bytes); }
+    }
+
+    private static Map<String, String> form(HttpExchange x) throws IOException {
+        Map<String, String> fields = new HashMap<>();
+        String raw = new String(x.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+        for (String pair : raw.split("&")) {
+            if (pair.isEmpty()) continue;
+            String[] kv = pair.split("=", 2);
+            fields.put(URLDecoder.decode(kv[0], StandardCharsets.UTF_8),
+                    kv.length > 1 ? URLDecoder.decode(kv[1], StandardCharsets.UTF_8) : "");
+        }
+        return fields;
+    }
+
+    private static String field(Map<String, String> f, String key, String label) {
+        String value = f.getOrDefault(key, "").trim();
+        if (value.isEmpty()) throw new IllegalArgumentException(label + " cannot be empty.");
+        return value;
+    }
+
+    private static String toJson(Student s) {
+        String extra = s instanceof RegularStudent
+                ? ((RegularStudent) s).getAdmissionDate() : ((TransfereeStudent) s).getPreviousSchool();
+        return "{\"type\":" + q(s.getStudentType()) + ",\"id\":" + q(s.getStudentId()) + ",\"name\":" + q(s.getName())
+                + ",\"contact\":" + q(s.getContactNumber()) + ",\"year\":" + s.getYearLevel()
+                + ",\"course\":" + q(s.getCourseName()) + ",\"dept\":" + q(s.getDepartmentName())
+                + ",\"extra\":" + q(extra) + "}";
+    }
+
+    private static String q(String value) {
+        StringBuilder out = new StringBuilder("\"");
+        for (char ch : String.valueOf(value).toCharArray()) {
+            if (ch == '"' || ch == '\\') out.append('\\').append(ch);
+            else if (ch < 0x20) out.append(String.format("\\u%04x", (int) ch));
+            else out.append(ch);
+        }
+        return out.append('"').toString();
     }
 
     private String prompt(String message) {
@@ -183,8 +303,8 @@ public class StudentManager {
             List<String> fields = splitRecord(line);
             if (fields.size() != 8) throw new IOException("Invalid record on line " + lineNumber + ".");
             try {
-                int studentId = Integer.parseInt(fields.get(1));
-                int contactNumber = Integer.parseInt(fields.get(3));
+                String studentId = fields.get(1);
+                String contactNumber = fields.get(3);
                 int year = Integer.parseInt(fields.get(4));
                 if (year < 1 || year > 4) throw new IOException("Invalid year level on line " + lineNumber + ".");
                 String type = fields.get(0);
@@ -211,8 +331,8 @@ public class StudentManager {
             String subtypeValue = student instanceof RegularStudent
                     ? ((RegularStudent) student).getAdmissionDate()
                     : ((TransfereeStudent) student).getPreviousSchool();
-            String[] fields = {student.getStudentType(), String.valueOf(student.getStudentId()), student.getName(),
-                    String.valueOf(student.getContactNumber()), String.valueOf(student.getYearLevel()),
+            String[] fields = {student.getStudentType(), student.getStudentId(), student.getName(),
+                    student.getContactNumber(), String.valueOf(student.getYearLevel()),
                     student.getCourseName(), student.getDepartmentName(), subtypeValue};
             List<String> encodedFields = new ArrayList<>();
             for (String field : fields) encodedFields.add(encodeField(field));

@@ -20,12 +20,12 @@ A school staff member or administrator who maintains student information.
 
 ## Four-class design
 
-- `Student` (abstract): shared integer student ID, name, integer contact number, year level, course name, and department name.
+- `Student` (abstract): shared student ID, name, contact number, year level, course name, and department name.
 - `RegularStudent`: adds admission date and overrides `displayDetails()`.
 - `TransfereeStudent`: adds previous school and overrides `displayDetails()`.
 - `StudentManager`: console menu, collection, CRUD operations, validation, and text-file persistence.
 
-The design uses integer types for student ID and contact number; leading zeros and 11-digit contact values cannot be represented. It has no address field or address class. Course and department are names rather than separate classes or coded values. Student status is omitted.
+Student ID (format 000-00000) and contact number (format 09000000000) are stored as text so the hyphen and leading zero are kept. It has no address field or address class. Course and department are names rather than separate classes or coded values. Student status is omitted.
 
 ## Required OOP demonstration
 
@@ -38,7 +38,7 @@ The design uses integer types for student ID and contact number; leading zeros a
 ## Development sequence
 
 1. Confirm project scope and required features. *(Four-class scope updated.)*
-2. Finalize UML diagrams. *(Updated class, use-case, activity, and sequence diagrams are in UML_DESIGN.md.)*
+2. Finalize UML diagrams. *(Updated class, use-case, and activity diagrams are in UML_DESIGN.md.)*
 3. Implement the four classes and relationships. *(Four-class implementation added.)*
 4. Implement CRUD operations and validation. *(Console menu included.)*
 5. Add file persistence. *(StudentManager saves and loads records.)*

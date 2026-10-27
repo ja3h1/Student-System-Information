@@ -8,9 +8,9 @@ The design is limited to four classes and matches the Java implementation.
 classDiagram
     class Student {
       <<abstract>>
-      -int studentId
+      -String studentId
       -String name
-      -int contactNumber
+      -String contactNumber
       -int yearLevel
       -String courseName
       -String departmentName
@@ -30,9 +30,9 @@ classDiagram
     class StudentManager {
       -List~Student~ students
       +addStudent(Student) void
-      +searchStudent(int) Optional~Student~
-      +updateStudent(int, ...) void
-      +deleteStudent(int) void
+      +searchStudent(String) Optional~Student~
+      +updateStudent(String, ...) void
+      +deleteStudent(String) void
       +listStudents() List~Student~
       +main(String[]) void
     }
@@ -85,25 +85,3 @@ flowchart TD
     Transferee --> Save
     Save --> Done([Show confirmation])
 ```
-
-## Sequence diagram: add a student
-
-```mermaid
-sequenceDiagram
-    actor Staff
-    participant App as StudentManager
-    participant Records as Student collection
-    participant File as students.txt
-    Staff->>App: Choose Add and enter details
-    App->>App: Validate required fields and year 1–4
-    App->>Records: Check for duplicate student ID
-    App->>App: Create RegularStudent or TransfereeStudent
-    App->>Records: Add Student object
-    App->>File: Save collection
-    File-->>App: Save result
-    App-->>Staff: Show confirmation or error
-```
-
-## Scope notes
-
-Student ID and contact number use `int`, so leading zeros and 11-digit contact values cannot be represented. There is no address field/class, status field, course code, department code, or separate course and department classes. Course and department names are stored directly on `Student`. `StudentManager` includes the menu, validation, CRUD operations, and text-file persistence so the project remains at four Java classes.

@@ -10,12 +10,12 @@ This Java console application lets school staff add, list, search, update, and d
 
 | Class | Responsibility |
 |---|---|
-| `Student` *(abstract)* | Shared student fields: integer student ID, name, integer contact number, year level, course name, and department name. |
+| `Student` *(abstract)* | Shared student fields: student ID (format 000-00000), name, contact number (format 09000000000), year level, course name, and department name. |
 | `RegularStudent` | Regular student subtype with an admission date. |
 | `TransfereeStudent` | Transferee subtype with a previous school. |
 | `StudentManager` | Console menu, student collection, CRUD operations, validation, and file saving/loading. |
 
-There is no address field or separate address class. Course and department are stored as names, without codes. Student status is not collected. Year level accepts 1–4. Student ID and contact number are entered as positive integers.
+There is no address field or separate address class. Course and department are stored as names, without codes. Student status is not collected. Year level accepts 1–4. Student ID must look like 000-00000 and contact number must be 11 digits starting with 09.
 
 CRUD, input validation, and file saving/loading are system functions. The project demonstrates only the five required OOP concepts below.
 
@@ -35,7 +35,7 @@ Requires JDK 11 or newer with `javac` available on PATH. From the project folder
 run.bat
 ```
 
-You can also double-click `run.bat` in File Explorer. The script compiles the four Java source files and opens the menu. It saves readable, pipe-separated text records in `data/students.txt`. Student ID and contact number are integers, so leading zeros and 11-digit contact numbers cannot be represented.
+You can also double-click `run.bat` in File Explorer. The script compiles the four Java source files and opens the menu. It saves readable, pipe-separated text records in `data/students.txt`.
 
 To compile and run manually from PowerShell:
 
@@ -44,6 +44,10 @@ New-Item -ItemType Directory -Force out
 javac -d out (Get-ChildItem .\src\*.java).FullName
 java -cp out StudentManager
 ```
+
+## Web interface
+
+Run `run-web.bat` and open `http://localhost:8080` to manage the same records in the browser. The page is `docs/index.html`; on GitHub Pages it runs as a demo that saves in the visitor's browser only.
 
 ## Project documents
 
