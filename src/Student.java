@@ -1,31 +1,44 @@
 import java.io.Serializable;
 
-/** Common student information. Concrete student types provide their own details. */
-public abstract class Student extends Person implements Serializable {
+/** Shared student data and polymorphic display behavior. */
+public abstract class Student implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final String studentId;
+    private String name;
+    private String contactNumber;
     private int yearLevel;
-    private Address address;
-    private Course course;
+    private String courseName;
+    private String departmentName;
 
     protected Student(String studentId, String name, String contactNumber, int yearLevel,
-                      Address address, Course course) {
-        super(name, contactNumber);
+                      String courseName, String departmentName) {
         this.studentId = studentId;
+        this.name = name;
+        this.contactNumber = contactNumber;
         this.yearLevel = yearLevel;
-        this.address = address;
-        this.course = course;
+        this.courseName = courseName;
+        this.departmentName = departmentName;
     }
 
     public String getStudentId() { return studentId; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getContactNumber() { return contactNumber; }
+    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
     public int getYearLevel() { return yearLevel; }
     public void setYearLevel(int yearLevel) { this.yearLevel = yearLevel; }
-    public Address getAddress() { return address; }
-    public void setAddress(Address address) { this.address = address; }
-    public Course getCourse() { return course; }
-    public void setCourse(Course course) { this.course = course; }
+    public String getCourseName() { return courseName; }
+    public void setCourseName(String courseName) { this.courseName = courseName; }
+    public String getDepartmentName() { return departmentName; }
+    public void setDepartmentName(String departmentName) { this.departmentName = departmentName; }
 
     public abstract String getStudentType();
     public abstract String displayDetails();
+
+    protected String commonDetails() {
+        return getStudentType() + " Student | ID: " + studentId + " | Name: " + name
+                + " | Contact: " + contactNumber + " | Year: " + yearLevel
+                + " | Course: " + courseName + " | Department: " + departmentName;
+    }
 }

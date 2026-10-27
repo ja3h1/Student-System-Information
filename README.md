@@ -1,48 +1,49 @@
 # Student Information Management System
 
-A CSC 104 Object-Oriented Programming project for organizing student records.
+A CSC 104 Object-Oriented Programming project for managing student records.
 
 ## Overview
 
-This Java console application lets a school staff member add, list, search, update, and delete student records. Records are saved to `data/students.dat` and loaded when the application starts.
+This Java console application lets school staff add, list, search, update, and delete student records. It validates required fields and year level, then saves records locally.
 
-## OOP concepts demonstrated
-
-- **Classes and objects:** Student records, courses, departments, and addresses are modeled as objects.
-- **Encapsulation:** Data fields are private and accessed through methods.
-- **Inheritance:** `Student` extends abstract `Person`; `RegularStudent` and `TransfereeStudent` extend `Student`.
-- **Polymorphism:** The student subtypes override `displayDetails()` and are displayed through the common `Student` type.
-- **Abstraction:** `Person` and `Student` define shared structure and behavior for their concrete subclasses.
-
-## Classes
+## The four classes
 
 | Class | Responsibility |
 |---|---|
-| `Person` | Abstract base for shared personal details. |
-| `Student` | Abstract student record with ID, year level, address, and course. |
-| `RegularStudent` | Student subtype with admission date. |
-| `TransfereeStudent` | Student subtype with previous-school information. |
-| `Address` | Stores a student's address. |
-| `Course` | Stores course details and its department. |
-| `Department` | Stores department details. |
-| `StudentManager` | Manages student records and CRUD operations. |
-| `FileHandler` | Saves and loads records using Java object serialization. |
-| `InputValidator` | Validates required text and year-level input. |
-| `Main` | Runs the console menu and connects user input to the system. |
+| `Student` *(abstract)* | Shared student fields: ID, name, contact number, year level, course name, and department name. |
+| `RegularStudent` | Regular student subtype with an admission date. |
+| `TransfereeStudent` | Transferee subtype with a previous school. |
+| `StudentManager` | Console menu, student collection, CRUD operations, validation, and file saving/loading. |
 
-## Run the application
+There is no address field or separate address class. Course and department are stored as names, without codes. Student status is not collected. Year level accepts 1–4.
 
-Requires JDK 11 or newer with `javac` available on PATH. From Command Prompt, go to the project folder and run `run.bat`. The script compiles the Java files and starts the menu. You can also double-click `run.bat` in File Explorer.
+CRUD, input validation, and file saving/loading are system functions. The project demonstrates only the five required OOP concepts below.
 
-To run manually from PowerShell:
+## Required OOP concepts
+
+- **Classes and objects:** The four classes model student types and the system that manages them.
+- **Encapsulation:** Student fields are private and are accessed through methods.
+- **Inheritance:** `RegularStudent` and `TransfereeStudent` extend `Student`.
+- **Polymorphism:** Each subtype overrides `displayDetails()`; the manager handles both through `Student` references.
+- **Abstraction:** `Student` is abstract and provides shared fields and behavior for concrete student types.
+
+## Run from Command Prompt
+
+Requires JDK 11 or newer with `javac` available on PATH. From the project folder, run:
+
+```cmd
+run.bat
+```
+
+You can also double-click `run.bat` in File Explorer. The script compiles the four Java source files and opens the menu. It saves records in `data/student_records_v2.dat`.
+
+To compile and run manually from PowerShell:
 
 ```powershell
 New-Item -ItemType Directory -Force out
 javac -d out (Get-ChildItem .\src\*.java).FullName
-java -cp out Main
+java -cp out StudentManager
 ```
-
-Year level is limited to 1–4. Student records contain course and department names; status and course/department codes are not collected. The application creates the `data` folder and student data file when records are first saved. Keep that generated data file private if it contains real student information; use fictional sample records for demonstrations and repository examples.
 
 ## Project documents
 
@@ -50,6 +51,4 @@ Year level is limited to 1–4. Student records contain course and department na
 - [UML design](UML_DESIGN.md)
 - [Class diagram image](student_management_class_diagram.png)
 
-## Status and team
-
-This is an initial functional version. Add group member names and contributions here. Update this section as the team implements and documents additional requirements.
+Use fictional student information for demonstrations and sample data.

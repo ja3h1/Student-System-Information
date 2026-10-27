@@ -1,28 +1,64 @@
 # SIMS UML Design
 
-These diagrams describe the initial Java console implementation. Update them if the code or agreed project scope changes.
+The design is limited to four classes and matches the Java implementation.
+
+## Class diagram
+
+```mermaid
+classDiagram
+    class Student {
+      <<abstract>>
+      -String studentId
+      -String name
+      -String contactNumber
+      -int yearLevel
+      -String courseName
+      -String departmentName
+      +getStudentType()* String
+      +displayDetails()* String
+    }
+    class RegularStudent {
+      -String admissionDate
+      +getStudentType() String
+      +displayDetails() String
+    }
+    class TransfereeStudent {
+      -String previousSchool
+      +getStudentType() String
+      +displayDetails() String
+    }
+    class StudentManager {
+      -List~Student~ students
+      +addStudent(Student) void
+      +searchStudent(String) Optional~Student~
+      +updateStudent(String, ...) void
+      +deleteStudent(String) void
+      +listStudents() List~Student~
+      +main(String[]) void
+    }
+    Student <|-- RegularStudent
+    Student <|-- TransfereeStudent
+    StudentManager o-- Student : manages collection
+```
 
 ## Use case diagram
 
 ```mermaid
 flowchart LR
-    Staff([School Staff])
+    Staff([School staff])
     subgraph SIMS[Student Information Management System]
       Add([Add student])
       List([List students])
-      Search([Search student])
+      Search([Search by ID])
       Update([Update student])
       Delete([Delete student])
-      Validate([Validate input])
-      Persist([Save or load records])
+      Persist([Save and load records])
     end
     Staff --> Add
     Staff --> List
     Staff --> Search
     Staff --> Update
     Staff --> Delete
-    Add --> Validate
-    Update --> Validate
     Add --> Persist
     Update --> Persist
     Delete --> Persist
@@ -34,16 +70,19 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    Start([Start]) --> Choose[Choose student type]
-    Choose --> Enter[Enter student and course details]
-    Enter --> Valid{Required fields and year valid?}
+    Start([Start]) --> Choose[Choose regular or transferee]
+    Choose --> Enter[Enter student details]
+    Enter --> Valid{Required fields valid and year is 1–4?}
     Valid -- No --> Error[Show validation message]
     Error --> Enter
     Valid -- Yes --> Exists{Student ID already exists?}
     Exists -- Yes --> Duplicate[Show duplicate ID message]
     Duplicate --> Enter
-    Exists -- No --> Create[Create RegularStudent or TransfereeStudent object]
-    Create --> Save[Add to collection and save file]
+    Exists -- No --> Type{Student type?}
+    Type -- Regular --> Regular[Create RegularStudent]
+    Type -- Transferee --> Transferee[Create TransfereeStudent]
+    Regular --> Save[Add to collection and save file]
+    Transferee --> Save
     Save --> Done([Show confirmation])
 ```
 
@@ -52,29 +91,19 @@ flowchart TD
 ```mermaid
 sequenceDiagram
     actor Staff
-    participant UI as Main
-    participant Validator as InputValidator
-    participant Manager as StudentManager
-    participant File as FileHandler
-    Staff->>UI: Select Add and enter details
-    UI->>Validator: Validate required values and year
-    Validator-->>UI: Validated values or input error
-    UI->>UI: Create concrete Student subtype
-    UI->>Manager: addStudent(student)
-    Manager->>Manager: Check duplicate student ID
-    Manager->>File: save(student collection)
-    File-->>Manager: Save result
-    Manager-->>UI: Confirmation or error
-    UI-->>Staff: Display result
+    participant App as StudentManager
+    participant Records as Student collection
+    participant File as Local data file
+    Staff->>App: Choose Add and enter details
+    App->>App: Validate required fields and year 1–4
+    App->>Records: Check for duplicate student ID
+    App->>App: Create RegularStudent or TransfereeStudent
+    App->>Records: Add Student object
+    App->>File: Save collection
+    File-->>App: Save result
+    App-->>Staff: Show confirmation or error
 ```
 
-## Class diagram
+## Scope notes
 
-See [`student_management_class_diagram.png`](student_management_class_diagram.png) for the updated class diagram.
-
-## Design notes
-
-- The system uses a `List<Student>` collection, with concrete student subtypes stored polymorphically.
-- `StudentManager` owns record operations, `InputValidator` checks user input, and `FileHandler` handles persistence.
-- `Address`, `Course`, and `Department` are associated data classes. Course and department are represented by names; code fields and student status are not part of the model. Year level is limited to 1–4.
-- The diagrams describe the design, not test results. Add test outcomes only after the group runs and records the tests.
+There is no address field/class, status field, course code, department code, or separate course and department classes. Course and department names are stored directly on `Student`. `StudentManager` includes the menu, validation, CRUD operations, and persistence so the project remains at four Java classes.

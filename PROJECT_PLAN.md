@@ -8,52 +8,43 @@ Develop a simple Java console application for managing student records.
 
 A school staff member or administrator who maintains student information.
 
-## Current core features
+## Current features
 
-1. Add a regular or transferee student record.
-2. View and list student records.
-3. Search for a student by student ID.
-4. Update a student record.
-5. Delete a student record.
-6. Validate required input and year level (1–4), with understandable feedback.
-7. Save and reload records using Java object serialization.
+1. Add a regular or transferee student.
+2. List all student records.
+3. Search by student ID.
+4. Update a record.
+5. Delete a record.
+6. Validate required fields and year level (1–4).
+7. Save and reload student records from a local file.
 
-## Class design
+## Four-class design
 
-- `Person` (abstract): shared personal details and behavior.
-- `Student` (abstract): shared student details (ID, year level, address, and course); extends `Person`.
-- `RegularStudent`: regular admission details; extends `Student`.
-- `TransfereeStudent`: previous-school details; extends `Student`.
-- `Address`: address information associated with a student.
-- `Course`: course details associated with students.
-- `Department`: department that offers courses.
-- `StudentManager`: maintains a collection of students and provides record operations.
-- `FileHandler`: saves and loads records.
-- `InputValidator`: validates user input.
-- `Main`: console menu and application entry point.
+- `Student` (abstract): shared student ID, name, contact number, year level, course name, and department name.
+- `RegularStudent`: adds admission date and overrides `displayDetails()`.
+- `TransfereeStudent`: adds previous school and overrides `displayDetails()`.
+- `StudentManager`: console menu, collection, CRUD operations, validation, and file persistence.
 
-## Record fields
-
-Student records do not include a status field. Course and department are represented by their names; course codes and department codes are not collected. Year level accepts values 1 through 4.
+The design has no address field or address class. Course and department are names rather than separate classes or coded values. Student status is omitted.
 
 ## Required OOP demonstration
 
-- **Classes and objects:** Create student, course, address, and management objects.
-- **Encapsulation:** Keep data fields private and modify them through appropriate methods.
-- **Inheritance:** Use the `Person` → `Student` → student subtype hierarchy.
-- **Polymorphism:** Override `displayDetails()` in the concrete student subtypes.
-- **Abstraction:** Use abstract classes for shared properties and behavior.
+- **Classes and objects:** Create records using the concrete student classes and manage them through `StudentManager`.
+- **Encapsulation:** Keep fields private and use methods for access or updates.
+- **Inheritance:** Both student subtypes extend the abstract `Student` class.
+- **Polymorphism:** Each subtype implements its own `displayDetails()` method.
+- **Abstraction:** The abstract `Student` class describes shared student data and behavior.
 
 ## Development sequence
 
-1. Confirm requirements and project scope. *(Initial scope documented.)*
-2. Finalize UML diagrams: use case, class, activity, and sequence. *(Use case, activity, and sequence drafts are in UML_DESIGN.md; the class diagram image is included.)*
-3. Implement the model classes and relationships. *(Initial console implementation added.)*
-4. Implement student record operations and input validation. *(Initial CRUD menu added.)*
-5. Add persistence and error handling. *(File save/load and input error handling added.)*
-6. Test valid and invalid inputs, CRUD behavior, and save/load behavior; document actual results.
+1. Confirm project scope and required features. *(Four-class scope updated.)*
+2. Finalize UML diagrams. *(Updated class, use-case, activity, and sequence diagrams are in UML_DESIGN.md.)*
+3. Implement the four classes and relationships. *(Four-class implementation added.)*
+4. Implement CRUD operations and validation. *(Console menu included.)*
+5. Add file persistence. *(StudentManager saves and loads records.)*
+6. Test valid and invalid inputs, CRUD behavior, and save/load behavior; record actual results.
 7. Prepare presentation slides and a stable demonstration path.
 
 ## Keep the repository accurate
 
-Update this plan when the implementation changes. Do not report test results or features as complete until the group has actually checked them. See [UML_DESIGN.md](UML_DESIGN.md) for the workflow diagrams.
+Update this plan when the implementation changes. Add test results only after the group runs and records the tests.
