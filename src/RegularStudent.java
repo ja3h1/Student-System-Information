@@ -1,6 +1,5 @@
 /** Student admitted through the regular admission process. */
 public class RegularStudent extends Student {
-    private static final long serialVersionUID = 1L;
     private final String admissionDate;
 
     public RegularStudent(String studentId, String name, String contactNumber, int yearLevel,
