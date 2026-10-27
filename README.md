@@ -32,7 +32,9 @@ This Java console application lets a school staff member add, list, search, upda
 
 ## Run the application
 
-Requires JDK 11 or newer. From the repository root:
+Requires JDK 11 or newer with `javac` available on PATH. From Command Prompt, go to the project folder and run `run.bat`. The script compiles the Java files and starts the menu. You can also double-click `run.bat` in File Explorer.
+
+To run manually from PowerShell:
 
 ```powershell
 New-Item -ItemType Directory -Force out
