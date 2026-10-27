@@ -2,21 +2,21 @@
 
 ## Goal
 
-Develop a simple Student Information Management System for managing student records.
+Develop a simple Java console application for managing student records.
 
 ## Main user
 
 A school staff member or administrator who maintains student information.
 
-## Planned core features
+## Current core features
 
-1. Add a student record.
+1. Add a regular or transferee student record.
 2. View and list student records.
 3. Search for a student by student ID.
 4. Update a student record.
 5. Delete a student record.
-6. Validate entered values and show understandable feedback.
-7. Save and reload records if file persistence is included in the implementation.
+6. Validate required input and year level, with understandable feedback.
+7. Save and reload records using Java object serialization.
 
 ## Class design
 
@@ -28,8 +28,9 @@ A school staff member or administrator who maintains student information.
 - `Course`: course details associated with students.
 - `Department`: department that offers courses.
 - `StudentManager`: maintains a collection of students and provides record operations.
-- `FileHandler`: saves and loads records, if supported.
-- `InputValidator`: validates inputs, if supported.
+- `FileHandler`: saves and loads records.
+- `InputValidator`: validates user input.
+- `Main`: console menu and application entry point.
 
 ## Required OOP demonstration
 
@@ -41,14 +42,14 @@ A school staff member or administrator who maintains student information.
 
 ## Development sequence
 
-1. Confirm requirements and project scope.
-2. Finalize UML diagrams: use case, class, activity, and sequence.
-3. Implement the model classes and relationships.
-4. Implement student record operations and input validation.
-5. Add persistence and error handling if required by the instructor.
-6. Test valid and invalid inputs, CRUD behavior, and save/load behavior.
+1. Confirm requirements and project scope. *(Initial scope documented.)*
+2. Finalize UML diagrams: use case, class, activity, and sequence. *(Use case, activity, and sequence drafts are in UML_DESIGN.md; the class diagram image is included.)*
+3. Implement the model classes and relationships. *(Initial console implementation added.)*
+4. Implement student record operations and input validation. *(Initial CRUD menu added.)*
+5. Add persistence and error handling. *(File save/load and input error handling added.)*
+6. Test valid and invalid inputs, CRUD behavior, and save/load behavior; document actual results.
 7. Prepare presentation slides and a stable demonstration path.
 
 ## Keep the repository accurate
 
-This plan describes intended design. Revise it if the implementation changes, and do not report planned features as completed until they work.
+Update this plan when the implementation changes. Do not report test results or features as complete until the group has actually checked them. See [UML_DESIGN.md](UML_DESIGN.md) for the workflow diagrams.

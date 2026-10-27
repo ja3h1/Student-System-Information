@@ -1,42 +1,52 @@
 # Student Information Management System
 
-A CSC 104 Object-Oriented Programming final project focused on organizing student records.
+A CSC 104 Object-Oriented Programming project for organizing student records.
 
-## Project overview
+## Overview
 
-The system is intended to help a school staff member manage student information in one place. The planned core functions are to add, view, search, update, and delete student records.
+This Java console application lets a school staff member add, list, search, update, and delete student records. Records are saved to `data/students.dat` and loaded when the application starts.
 
-## Planned OOP concepts
+## OOP concepts demonstrated
 
-- **Classes and objects:** Student and supporting system classes model the records and the work the application performs.
-- **Encapsulation:** Keep fields private and expose controlled methods for reading or changing data.
-- **Inheritance:** `Student` inherits common personal details from the abstract `Person` class; `RegularStudent` and `TransfereeStudent` inherit from `Student`.
-- **Polymorphism:** Student subtypes can provide their own implementation of `displayDetails()`.
-- **Abstraction:** Abstract `Person` and `Student` classes define shared behavior without being instantiated directly.
+- **Classes and objects:** Student records, courses, departments, and addresses are modeled as objects.
+- **Encapsulation:** Data fields are private and accessed through methods.
+- **Inheritance:** `Student` extends abstract `Person`; `RegularStudent` and `TransfereeStudent` extend `Student`.
+- **Polymorphism:** The student subtypes override `displayDetails()` and are displayed through the common `Student` type.
+- **Abstraction:** `Person` and `Student` define shared structure and behavior for their concrete subclasses.
 
-## Planned classes
+## Classes
 
 | Class | Responsibility |
 |---|---|
 | `Person` | Abstract base for shared personal details. |
-| `Student` | Abstract student record with student ID, year level, status, address, and course. |
-| `RegularStudent` | Student subtype with regular admission information. |
+| `Student` | Abstract student record with ID, year level, status, address, and course. |
+| `RegularStudent` | Student subtype with admission date. |
 | `TransfereeStudent` | Student subtype with previous-school information. |
 | `Address` | Stores a student's address. |
-| `Course` | Stores course information. |
-| `Department` | Represents a department that offers courses. |
+| `Course` | Stores course details and its department. |
+| `Department` | Stores department details. |
 | `StudentManager` | Manages student records and CRUD operations. |
-| `FileHandler` | Handles saving and loading records if implemented. |
-| `InputValidator` | Checks user-provided values if implemented. |
+| `FileHandler` | Saves and loads records using Java object serialization. |
+| `InputValidator` | Validates required text and year-level input. |
+| `Main` | Runs the console menu and connects user input to the system. |
 
-## Class diagram
+## Run the application
 
-See [`student_management_class_diagram.png`](student_management_class_diagram.png).
+Requires JDK 11 or newer. From the repository root:
 
-## Project status
+```powershell
+javac -d out src\*.java
+java -cp out Main
+```
 
-This repository currently contains the class diagram and project plan. Update this section as implementation progresses. Only describe features as complete after they are implemented and checked.
+The application creates the `data` folder and student data file when records are first saved. Keep that generated data file private if it contains real student information; use fictional sample records for demonstrations and repository examples.
 
-## Team
+## Project documents
 
-Add group members and their contributions here.
+- [Project plan](PROJECT_PLAN.md)
+- [UML design](UML_DESIGN.md)
+- [Class diagram image](student_management_class_diagram.png)
+
+## Status and team
+
+This is an initial functional version. Add group member names and contributions here. Update this section as the team implements and documents additional requirements.
