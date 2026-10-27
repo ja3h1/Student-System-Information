@@ -4,7 +4,7 @@ A CSC 104 Object-Oriented Programming project for managing student records.
 
 ## Overview
 
-This Java console application lets school staff add, list, search, update, and delete student records. It validates required fields and year level, then saves records locally.
+This Java console application lets school staff add, list, search, update, and delete student records. The list view uses aligned columns. It validates required fields and year level, then saves records locally.
 
 ## The four classes
 

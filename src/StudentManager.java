@@ -102,7 +102,24 @@ public class StudentManager {
 
     private void showStudents() {
         if (students.isEmpty()) { System.out.println("No student records yet."); return; }
-        students.forEach(student -> System.out.println(student.displayDetails()));
+        String format = "%-14s | %-24s | %-12s | %-6s | %-24s | %-24s%n";
+        System.out.printf(format, "STUDENT ID", "NAME", "TYPE", "YEAR", "COURSE", "DEPARTMENT");
+        System.out.println("----------------+--------------------------+--------------+--------+--------------------------+--------------------------");
+        for (Student student : students) {
+            System.out.printf(format,
+                    column(student.getStudentId(), 14),
+                    column(student.getName(), 24),
+                    column(student.getStudentType(), 12),
+                    student.getYearLevel(),
+                    column(student.getCourseName(), 24),
+                    column(student.getDepartmentName(), 24));
+        }
+    }
+
+    private String column(String value, int width) {
+        if (value == null) return "";
+        if (value.length() <= width) return value;
+        return value.substring(0, width - 3) + "...";
     }
 
     private void showStudent() {
