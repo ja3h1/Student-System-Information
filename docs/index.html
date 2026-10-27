@@ -160,7 +160,6 @@ function render(){
   const q=$("q").value.trim().toLowerCase();
   const hits=students.filter(s=>!q||String(s.id).startsWith(q)||s.name.toLowerCase().includes(q));
   $("count").textContent=students.length?`${students.length} on file${q?`, ${hits.length} shown`:""}`:"Nothing on file yet";
-  if(!remote)$("count").textContent+=" (demo: saved in this browser only)";
   $("list").innerHTML=hits.length?hits.map(s=>`<li><button class="row" data-id="${s.id}" style="--tab:${tabVar(s.type)}">
     <span class="who"><b>${esc(s.name)}</b><small data-kind="${s.type}">ID ${s.id}</small></span>
     <span class="what">${esc(s.course)}<small>${esc(s.dept)}</small></span>
