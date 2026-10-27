@@ -1,8 +1,7 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +10,7 @@ import java.util.Scanner;
 /** Console application and student-record manager. */
 public class StudentManager {
     private static final Scanner INPUT = new Scanner(System.in);
-    private static final Path DATA_FILE = Path.of("data", "student_records_v2.dat");
+    private static final Path DATA_FILE = Path.of("data", "students.txt");
 
     private final List<Student> students;
 
@@ -164,24 +163,91 @@ public class StudentManager {
 
     private List<Student> loadStudents() throws IOException {
         if (!Files.exists(DATA_FILE)) return new ArrayList<>();
-        try (ObjectInputStream input = new ObjectInputStream(Files.newInputStream(DATA_FILE))) {
-            Object saved = input.readObject();
-            if (!(saved instanceof List<?>)) throw new IOException("Saved records have an unexpected format.");
-            List<Student> loaded = new ArrayList<>();
-            for (Object item : (List<?>) saved) {
-                if (!(item instanceof Student)) throw new IOException("Saved data contains an unknown record type.");
-                loaded.add((Student) item);
+        List<Student> loaded = new ArrayList<>();
+        int lineNumber = 0;
+        for (String line : Files.readAllLines(DATA_FILE, StandardCharsets.UTF_8)) {
+            lineNumber++;
+            if (line.trim().isEmpty()) continue;
+            List<String> fields = splitRecord(line);
+            if (fields.size() != 8) throw new IOException("Invalid record on line " + lineNumber + ".");
+            try {
+                int year = Integer.parseInt(fields.get(4));
+                if (year < 1 || year > 4) throw new IOException("Invalid year level on line " + lineNumber + ".");
+                String type = fields.get(0);
+                if (type.equals("Regular")) {
+                    loaded.add(new RegularStudent(fields.get(1), fields.get(2), fields.get(3), year,
+                            fields.get(5), fields.get(6), fields.get(7)));
+                } else if (type.equals("Transferee")) {
+                    loaded.add(new TransfereeStudent(fields.get(1), fields.get(2), fields.get(3), year,
+                            fields.get(5), fields.get(6), fields.get(7)));
+                } else {
+                    throw new IOException("Unknown student type on line " + lineNumber + ".");
+                }
+            } catch (NumberFormatException ex) {
+                throw new IOException("Invalid year level on line " + lineNumber + ".", ex);
             }
-            return loaded;
-        } catch (ClassNotFoundException ex) {
-            throw new IOException("Saved records are incompatible with this version.", ex);
         }
+        return loaded;
     }
 
     private void saveStudents() throws IOException {
         Files.createDirectories(DATA_FILE.getParent());
-        try (ObjectOutputStream output = new ObjectOutputStream(Files.newOutputStream(DATA_FILE))) {
-            output.writeObject(new ArrayList<>(students));
+        List<String> lines = new ArrayList<>();
+        for (Student student : students) {
+            String subtypeValue = student instanceof RegularStudent
+                    ? ((RegularStudent) student).getAdmissionDate()
+                    : ((TransfereeStudent) student).getPreviousSchool();
+            String[] fields = {student.getStudentType(), student.getStudentId(), student.getName(),
+                    student.getContactNumber(), String.valueOf(student.getYearLevel()),
+                    student.getCourseName(), student.getDepartmentName(), subtypeValue};
+            List<String> encodedFields = new ArrayList<>();
+            for (String field : fields) encodedFields.add(encodeField(field));
+            lines.add(String.join("|", encodedFields));
         }
+        Files.write(DATA_FILE, lines, StandardCharsets.UTF_8);
+    }
+
+    private String encodeField(String value) {
+        StringBuilder encoded = new StringBuilder();
+        for (char ch : value.toCharArray()) {
+            switch (ch) {
+                case '\\': encoded.append("\\\\"); break;
+                case '|': encoded.append("\\|"); break;
+                case '\n': encoded.append("\\n"); break;
+                case '\r': encoded.append("\\r"); break;
+                case '\t': encoded.append("\\t"); break;
+                default: encoded.append(ch);
+            }
+        }
+        return encoded.toString();
+    }
+
+    private List<String> splitRecord(String line) throws IOException {
+        List<String> fields = new ArrayList<>();
+        StringBuilder field = new StringBuilder();
+        boolean escaped = false;
+        for (char ch : line.toCharArray()) {
+            if (escaped) {
+                switch (ch) {
+                    case '\\': field.append('\\'); break;
+                    case '|': field.append('|'); break;
+                    case 'n': field.append('\n'); break;
+                    case 'r': field.append('\r'); break;
+                    case 't': field.append('\t'); break;
+                    default: throw new IOException("Invalid escape in saved student data.");
+                }
+                escaped = false;
+            } else if (ch == '\\') {
+                escaped = true;
+            } else if (ch == '|') {
+                fields.add(field.toString());
+                field.setLength(0);
+            } else {
+                field.append(ch);
+            }
+        }
+        if (escaped) throw new IOException("Incomplete escape in saved student data.");
+        fields.add(field.toString());
+        return fields;
     }
 }

@@ -16,14 +16,14 @@ A school staff member or administrator who maintains student information.
 4. Update a record.
 5. Delete a record.
 6. Validate required fields and year level (1–4).
-7. Save and reload student records from a local file.
+7. Save and reload student records from a readable text file (`data/students.txt`).
 
 ## Four-class design
 
 - `Student` (abstract): shared student ID, name, contact number, year level, course name, and department name.
 - `RegularStudent`: adds admission date and overrides `displayDetails()`.
 - `TransfereeStudent`: adds previous school and overrides `displayDetails()`.
-- `StudentManager`: console menu, collection, CRUD operations, validation, and file persistence.
+- `StudentManager`: console menu, collection, CRUD operations, validation, and text-file persistence.
 
 The design has no address field or address class. Course and department are names rather than separate classes or coded values. Student status is omitted.
 

@@ -52,7 +52,7 @@ flowchart LR
       Search([Search by ID])
       Update([Update student])
       Delete([Delete student])
-      Persist([Save and load records])
+      Persist([Save and load text records])
     end
     Staff --> Add
     Staff --> List
@@ -93,7 +93,7 @@ sequenceDiagram
     actor Staff
     participant App as StudentManager
     participant Records as Student collection
-    participant File as Local data file
+    participant File as students.txt
     Staff->>App: Choose Add and enter details
     App->>App: Validate required fields and year 1–4
     App->>Records: Check for duplicate student ID
@@ -106,4 +106,4 @@ sequenceDiagram
 
 ## Scope notes
 
-There is no address field/class, status field, course code, department code, or separate course and department classes. Course and department names are stored directly on `Student`. `StudentManager` includes the menu, validation, CRUD operations, and persistence so the project remains at four Java classes.
+There is no address field/class, status field, course code, department code, or separate course and department classes. Course and department names are stored directly on `Student`. `StudentManager` includes the menu, validation, CRUD operations, and text-file persistence so the project remains at four Java classes.

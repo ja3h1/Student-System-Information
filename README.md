@@ -35,7 +35,7 @@ Requires JDK 11 or newer with `javac` available on PATH. From the project folder
 run.bat
 ```
 
-You can also double-click `run.bat` in File Explorer. The script compiles the four Java source files and opens the menu. It saves records in `data/student_records_v2.dat`.
+You can also double-click `run.bat` in File Explorer. The script compiles the four Java source files and opens the menu. It saves readable, pipe-separated text records in `data/students.txt`.
 
 To compile and run manually from PowerShell:
 
